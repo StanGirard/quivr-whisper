@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Interaction WebApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div id="app" class="text-center">
+        <button id="record-btn" class="bg-red-500 p-4 rounded-full text-white font-bold text-xl focus:outline-none">
+            🎙️ Record/Stop
+        </button>
+        <audio id="audio-playback" controls class="hidden mt-4"></audio>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        const recordBtn = document.getElementById('record-btn');
+        const audioPlayback = document.getElementById('audio-playback');
+
+        recordBtn.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        async function startRecording() {
+            audioChunks = [];
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.start();
+            isRecording = true;
+            recordBtn.textContent = 'Stop Recording';
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks);
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                audioPlayback.classList.remove('hidden');
+                audioPlayback.play();
+                isRecording = false;
+                recordBtn.textContent = '🎙️ Record/Stop';
+
+                // Send the audio blob to the Flask backend
+                const formData = new FormData();
+                formData.append('audio_data', audioBlob);
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                audioPlayback.src = 'data:audio/wav;base64,' + data.audio_base64;
+                audioPlayback.play();
+            };
+        }
+    </script>
+</body>
+
+</html>
