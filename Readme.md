@@ -2,6 +2,12 @@
 
 Quivr-Whisper is a web application that allows users to ask questions via audio input. It leverages OpenAI's Whisper model for speech transcription and synthesizes responses using OpenAI's text-to-speech capabilities. The application queries the Quivr API to get a response based on the transcribed audio input.
 
+
+
+https://github.com/StanGirard/quivr-whisper/assets/19614572/9cc270c9-07e4-4ce1-bcff-380f195c9313
+
+
+
 ## Features
 
 - Audio input for asking questions
