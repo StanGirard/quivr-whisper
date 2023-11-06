@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import openai
 import base64
 import os
@@ -12,7 +12,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 @app.route("/")
 def index():
     # Serve the main HTML page
-    return render_template_string(open("index.html").read())
+    return render_template("index.html")
 
 
 @app.route("/transcribe", methods=["POST"])
